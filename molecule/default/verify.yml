@@ -1,0 +1,36 @@
+---
+- name: Verify vector-role
+  hosts: all
+  tasks:
+  
+    - name: Проверка наличия Vector
+      command: command -v vector
+      register: vector_check
+      failed_when: vector_check.rc != 0
+
+    - name: Проверка, что конфигурационный файл существует
+      stat:
+        path: /etc/vector/vector.toml
+      register: vector_config
+
+    - name: Проверка синтаксиса vector.toml
+      command: vector validate --no-environment
+      register: validate_result
+      changed_when: false
+      failed_when: false
+
+    - name: Assert config is valid
+      assert:
+        that:
+          - validate_result.rc == 0
+        success_msg: "✅ Config valid"
+        fail_msg: "❌ Config invalid"
+
+    - name: Check Vector version
+      command: vector --version
+      register: vector_version
+      changed_when: false
+      
+    - name: Display version
+      debug:
+        var: vector_version.stdout

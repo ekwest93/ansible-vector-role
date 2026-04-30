@@ -1,0 +1,9 @@
+---
+- name: Destroy Docker container
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Remove container
+      docker_container:
+        name: instance
+        state: absent

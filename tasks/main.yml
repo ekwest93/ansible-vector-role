@@ -1,49 +1,50 @@
 ---
-- name: Update apt cache (Debian)
-  apt:
-    update_cache: yes
-  when: ansible_os_family == "Debian"
-
-- name: Install Vector dependencies
-  apt:
+- name: Install dependencies
+  yum:
     name:
       - curl
-      - gnupg
+      - gnupg2
     state: present
-  when: ansible_os_family == "Debian"
+  when: ansible_os_family == "RedHat"
 
 - name: Add Vector GPG key
-  apt_key:
-    url: https://repositories.vector.dev/gpg.key
+  rpm_key:
+    key: https://repositories.timber.io/public/vector/gpg.key
     state: present
-  when: ansible_os_family == "Debian"
+  when: ansible_os_family == "RedHat"
 
 - name: Add Vector repository
-  apt_repository:
-    repo: "deb https://repositories.vector.dev/{{ ansible_distribution|lower }}/ {{ ansible_distribution_release }} main"
-    state: present
-  when: ansible_os_family == "Debian"
+  yum_repository:
+    name: vector
+    description: Vector repository
+    baseurl: https://repositories.timber.io/public/vector/rpm/el/$releasever/$basearch
+    gpgcheck: yes
+    enabled: yes
+  when: ansible_os_family == "RedHat"
 
 - name: Install Vector
-  apt:
+  yum:
     name: vector
-    state: "{{ vector_version | default('present') }}"
+    state: present
+  when: ansible_os_family == "RedHat"
 
 - name: Create Vector config directory
   file:
     path: /etc/vector
     state: directory
-    mode: '0755'
 
-- name: Deploy Vector configuration
-  template:
-    src: vector.toml.j2
+- name: Copy Vector config
+  copy:
+    content: |
+      [sources.in]
+      type = "stdin"
+      [sinks.out]
+      inputs = ["in"]
+      type = "console"
     dest: /etc/vector/vector.toml
-    mode: '0644'
   notify: restart vector
-  when: vector_config is defined
 
-- name: Enable and start Vector service
+- name: Start Vector service
   systemd:
     name: vector
     state: started

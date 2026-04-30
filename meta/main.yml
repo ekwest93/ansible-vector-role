@@ -1,27 +1,16 @@
 ---
 galaxy_info:
-  author: "ekwest93"
-  description: "Install and configure Vector observability pipeline"
-  license: "MIT"
+  namespace: netology
+  role_name: vector
+  author: ekwest93
+  description: Role to install and configure Vector
+  license: MIT
   min_ansible_version: "2.10"
   platforms:
-    - name: Ubuntu
-      versions:
-        - focal
-        - jammy
-    - name: Debian
-      versions:
-        - 10
-        - 11
     - name: CentOS
-      versions:
-        - 8
-    - name: Rocky
       versions:
         - 8
   galaxy_tags:
     - vector
-    - observability
-    - metrics
     - logging
 dependencies: []

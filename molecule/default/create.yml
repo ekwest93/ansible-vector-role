@@ -1,0 +1,11 @@
+---
+- name: Create Docker container
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Create container
+      docker_container:
+        name: instance
+        image: rockylinux:8
+        command: /bin/bash -c "sleep infinity"
+        state: started
